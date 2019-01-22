@@ -1,7 +1,6 @@
 # windows
 *.obj
 *.exe
-*.lib
 
 #linux
 *.o
