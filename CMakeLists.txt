@@ -5,6 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 project(lightdemo)
 add_subdirectory(win)
 
+if(WIN32)
+	if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+		string(REGEX REPLACE "/W[0-4]" "/W1" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+	endif()
+endif()
+
 add_executable(
 	lightdemo
 
