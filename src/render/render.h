@@ -29,11 +29,15 @@ namespace core
 	struct shadow
 	{
 		shadow(const core::renderer&, win::roll&);
+		void add(float, float);
+		void send();
 
 		win::program program;
 		win::vao vao;
 
-		win::vbo position_size;
+		win::vbo geometry;
+
+		std::vector<float> buffer_geometry;
 
 		const core::renderer &renderer;
 	};

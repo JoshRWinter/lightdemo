@@ -14,6 +14,11 @@ inline struct mersenne_struct
 		return std::uniform_real_distribution(low, high)(gen);
 	}
 
+	float operator()(int low, int high)
+	{
+		return std::uniform_int_distribution(low, high)(gen);
+	}
+
 	std::mt19937 gen;
 } mersenne;
 

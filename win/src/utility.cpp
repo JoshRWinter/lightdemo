@@ -144,7 +144,7 @@ win::program::program(GLuint prog)
 win::program::program(program &&rhs)
 {
 	program_ = rhs.program_;
-	rhs.program_ = 0;
+	rhs.program_ = (GLuint)-1;
 }
 
 win::program::~program()
@@ -157,7 +157,7 @@ win::program &win::program::operator=(program &&rhs)
 	finalize();
 
 	program_ = rhs.program_;
-	rhs.program_ = 0;
+	rhs.program_ = (GLuint)-1;
 
 	return *this;
 }
@@ -174,10 +174,10 @@ win::program::operator GLuint()
 
 void win::program::finalize()
 {
-	if(program_ != 0)
+	if(program_ != (GLuint)-1)
 	{
 		glDeleteProgram(program_);
-		program_ = 0;
+		program_ = (GLuint)-1;
 	}
 }
 

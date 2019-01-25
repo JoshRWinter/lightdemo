@@ -45,6 +45,9 @@ int main()
 		ent::entity::render(renderer, entity_list);
 		renderer.quad_pass.send();
 
+		renderer.shadow_pass.add(0.0f, 0.0f);
+		renderer.shadow_pass.send();
+
 		display.swap();
 	}
 }
