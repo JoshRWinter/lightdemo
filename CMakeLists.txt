@@ -18,6 +18,7 @@ add_executable(
 
 	#renderer
 	src/render/render.h
+	src/render/shadowfill.h
 	src/render/renderer.cpp
 	src/render/quad.cpp
 	src/render/shadow.cpp

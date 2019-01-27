@@ -29,7 +29,7 @@ namespace core
 	struct shadow
 	{
 		shadow(const core::renderer&, win::roll&);
-		void add(float, float);
+		void add(const std::vector<ent::entity>&, float, float, float);
 		void send();
 
 		win::program program;
@@ -37,7 +37,7 @@ namespace core
 
 		win::vbo geometry;
 
-		std::vector<float> buffer_geometry;
+		std::vector<std::vector<float> > lights;
 
 		const core::renderer &renderer;
 	};
