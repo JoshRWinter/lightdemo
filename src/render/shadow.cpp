@@ -20,9 +20,7 @@ core::shadow::shadow(const core::renderer &parent, win::roll &roll)
 
 void core::shadow::add(const std::vector<ent::entity> &solids, float x, float y, float range)
 {
-	const auto &verts = shadowfill(solids, x, y, range);
-	if(verts.size() != 0)
-		lights.push_back(verts);
+	lights.push_back(shadowfill(solids, x, y, range));
 }
 
 void core::shadow::send()
@@ -33,15 +31,9 @@ void core::shadow::send()
 
 	for(const auto &verts : lights)
 	{
-		press::writeln("{} triangles", verts.size() / 6);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * verts.size(), verts.data(), GL_DYNAMIC_DRAW);
 
-		press::write("{{} ");
-		for(float f : verts)
-			press::write("{}, ", f);
-		press::writeln("}");
-
-		glDrawArrays(GL_TRIANGLES, 0, verts.size() / 2);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, verts.size() / 2);
 	}
 
 	lights.clear();

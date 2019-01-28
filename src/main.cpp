@@ -36,6 +36,8 @@ int main()
 	});
 
 	win::roll roll("assets");
+	win::font_renderer font_renderer = display.make_font_renderer(display.width(), display.height(), area.left, area.right, area.bottom, area.top);
+	win::font font1 = font_renderer.make_font(roll["arial.ttf"], 0.3f);
 	core::renderer renderer(display, roll, area);
 
 	while(display.process() && !quit)
@@ -45,8 +47,32 @@ int main()
 		ent::entity::render(renderer, entity_list);
 		renderer.quad_pass.send();
 
-		renderer.shadow_pass.add(entity_list, x, y, 6.0f);
+		renderer.shadow_pass.add(entity_list, x, y, 3.0f);
+		const std::vector<float> copy = renderer.shadow_pass.lights.at(0);
 		renderer.shadow_pass.send();
+
+		int index = 0;
+		for(int i = 2; i < copy.size() - 2; i += 2)
+		{
+			char buffer[100];
+			press::bwrite(buffer, sizeof(buffer), "{}", index);
+			font_renderer.draw(font1, buffer, copy.at(i), copy.at(i + 1), win::color(1.0f, 0.0f, 0.0f));
+			index++;
+		}
+
+		/*
+		if(entity_list.size() > 0)
+		{
+			const ent::entity &entity = entity_list[0];
+			float angle = -atan2f(y - entity.y, x - entity.x);
+			if(angle < 0.0f)
+				angle += M_PI * 2.0f;
+			if(angle > M_PI * 2.0f)
+				angle -= M_PI * 2.0f;
+
+			press::writeln("angle to upperleft: {}", angle);
+		}
+		*/
 
 		display.swap();
 	}

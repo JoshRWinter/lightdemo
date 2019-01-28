@@ -2,132 +2,204 @@
 #define SHADOWFILL_H
 
 #include <vector>
+#include <algorithm>
+#include <cmath>
 
 struct vertex
 {
-	vertex() : propagate(false) {}
+	vertex() : overtake(overtake_style::NONE) {}
+	void set_angle(float xp, float yp)
+	{
+		angle = -atan2(yp - y, xp - x);
+		if(angle < 0.0f)
+			angle += M_PI * 2.0f;
+		else if(angle > M_PI * 2.0f)
+			angle -= M_PI * 2.0f;
+	}
+
+	enum class overtake_style { NONE, PRE, POST } overtake;
 
 	float x, y;
-	bool propagate;
+	float angle;
 };
 
-struct triangle
+template <typename Solid, template <typename> typename List> std::vector<vertex> get_all_corners(const List<Solid> &solids, float x, float y, float range)
 {
-	vertex v[3];
-};
+	std::vector<vertex> corners;
 
-template <typename Solid> std::vector<triangle> get_visible_sides(const Solid &solid, float x, float y)
-{
-	std::vector<triangle> visibles;
+	// add the four corners
+	vertex v;
+	v.x = x + range;
+	v.y = y - range;
+	v.set_angle(x, y);
+	corners.push_back(v);
 
-	triangle tri;
-	tri.v[0].x = x;
-	tri.v[0].y = y;
+	v.x = x + range;
+	v.y = y + range;
+	v.set_angle(x, y);
+	corners.push_back(v);
 
-	bool left = false;
-	bool right = false;
+	v.x = x - range;
+	v.y = y + range;
+	v.set_angle(x, y);
+	corners.push_back(v);
 
-	if(x < solid.x) // left side
+	v.x = x - range;
+	v.y = y - range;
+	v.set_angle(x, y);
+	corners.push_back(v);
+
+	for(const Solid &solid : solids)
 	{
-		fprintf(stderr, "LEFT SIDE\n");
-		left = true;
+		const bool left = x < solid.x;
+		const bool right = x > solid.x + solid.w;
+		const bool bottom = y > solid.y + solid.h;
+		const bool top = y < solid.y;
 
-		tri.v[1].x = solid.x;
-		tri.v[1].y = solid.y;
+		if(left)
+		{
+			vertex corner1;
+			corner1.x = solid.x;
+			corner1.y = solid.y + solid.h;
+			corner1.set_angle(x, y);
 
-		tri.v[2].x = solid.x;
-		tri.v[2].y = solid.y + solid.h;
+			vertex corner2;
+			corner2.x = solid.x;
+			corner2.y = solid.y;
+			corner2.set_angle(x, y);
 
-		visibles.push_back(tri);
+			if(top)
+				corner1.overtake = vertex::overtake_style::PRE;
+			else if(bottom)
+				corner2.overtake = vertex::overtake_style::POST;
+			else
+			{
+				corner1.overtake = vertex::overtake_style::PRE;
+				corner2.overtake = vertex::overtake_style::POST;
+			}
+
+			corners.push_back(corner1);
+			corners.push_back(corner2);
+		}
+		else if(right)
+		{
+			vertex corner1;
+			corner1.x = solid.x + solid.w;
+			corner1.y = solid.y;
+			corner1.set_angle(x, y);
+
+			vertex corner2;
+			corner2.x = solid.x + solid.w;
+			corner2.y = solid.y + solid.h;
+			corner2.set_angle(x, y);
+
+			if(top)
+				corner2.overtake = vertex::overtake_style::POST;
+			else if(bottom)
+				corner1.overtake = vertex::overtake_style::PRE;
+			else
+			{
+				corner1.overtake = vertex::overtake_style::PRE;
+				corner2.overtake = vertex::overtake_style::POST;
+			}
+
+			corners.push_back(corner1);
+			corners.push_back(corner2);
+		}
+		if(bottom)
+		{
+			vertex corner1;
+			corner1.x = solid.x + solid.w;
+			corner1.y = solid.y + solid.h;
+			corner1.set_angle(x, y);
+
+			vertex corner2;
+			corner2.x = solid.x;
+			corner2.y = solid.y + solid.h;
+			corner2.set_angle(x, y);
+
+			if(left)
+				corner2.overtake = vertex::overtake_style::POST;
+			else if(right)
+				corner1.overtake = vertex::overtake_style::PRE;
+			else
+			{
+				corner1.overtake = vertex::overtake_style::PRE;
+				corner2.overtake = vertex::overtake_style::POST;
+			}
+
+			corners.push_back(corner1);
+			corners.push_back(corner2);
+		}
+		else if(top)
+		{
+			vertex corner1;
+			corner1.x = solid.x;
+			corner1.y = solid.y;
+			corner1.set_angle(x, y);
+
+			vertex corner2;
+			corner2.x = solid.x + solid.w;
+			corner2.y = solid.y;
+			corner2.set_angle(x, y);
+
+			if(left)
+				corner2.overtake = vertex::overtake_style::POST;
+			else if(right)
+				corner1.overtake = vertex::overtake_style::PRE;
+			else
+			{
+				corner1.overtake = vertex::overtake_style::PRE;
+				corner2.overtake = vertex::overtake_style::POST;
+			}
+
+			corners.push_back(corner1);
+			corners.push_back(corner2);
+		}
 	}
-	else if(x > solid.x + solid.w) // right side
+
+	std::sort(corners.begin(), corners.end(), [](const vertex &corner1, const vertex &corner2)
 	{
-		fprintf(stderr, "RIGHT SIDE\n");
-		right = true;
+		return corner1.angle < corner2.angle;
+	});
 
-		tri.v[1].x = solid.x + solid.w;
-		tri.v[1].y = solid.y + solid.h;
-
-		tri.v[2].x = solid.x + solid.w;
-		tri.v[2].y = solid.y;
-
-		visibles.push_back(tri);
-	}
-
-	if(y < solid.y) // top side
-	{
-		fprintf(stderr, "TOP SIDE\n");
-		tri.v[1].x = solid.x + solid.w;
-		tri.v[1].y = solid.y;
-
-		tri.v[2].x = solid.x;
-		tri.v[2].y = solid.y;
-
-		visibles.push_back(tri);
-
-/*
-		if(right)
-		{
-			visibles[0].v[1].propagate = true;
-			visibles[1].v[2].propagate = true;
-		}
-		else if(left)
-		{
-			visibles[0].v[2].propagate = true;
-			visibles[1].v[1].propagate = true;
-		}
-*/
-	}
-	else if(y > solid.y + solid.h) // bottom side
-	{
-		fprintf(stderr, "BOTTOM SIDE\n");
-		tri.v[1].x = solid.x;
-		tri.v[1].y = solid.y + solid.h;
-
-		tri.v[2].x = solid.x + solid.w;
-		tri.v[2].y = solid.y + solid.h;
-
-		visibles.push_back(tri);
-
-/*
-		if(right)
-		{
-			visibles[0].v[2].propagate = true;
-			visibles[1].v[1].propagate = true;
-		}
-		else if(left)
-		{
-			visibles[0].v[1].propagate = true;
-			visibles[1].v[2].propagate = true;
-		}
-*/
-	}
-
-	return visibles;
+	return corners;
 }
 
-template <typename Solid, template <typename c> typename List> std::vector<float> shadowfill(const List<Solid> &solids, float x, float y, float range)
+template <typename Solid, template <typename> typename List> vertex cast_ray(const List<Solid> &solids, float sourcex, float sourcey, float targetx, float targety, float angle)
+{
+	return {};
+}
+
+template <typename Solid, template <typename> typename List> std::vector<float> shadowfill(const List<Solid> &solids, float x, float y, float range)
 {
 	std::vector<float> verts;
 
-	for(const auto &solid : solids)
+	const std::vector<vertex> corners = get_all_corners(solids, x, y, range);
+
+	verts.push_back(x);
+	verts.push_back(y);
+
+	for(const auto &corner : corners)
 	{
-		const auto visibles = get_visible_sides(solid, x, y);
-
-		fprintf(stderr, "{\n");
-		for(const triangle &tri : visibles)
+		if(corner.overtake == vertex::overtake_style::PRE)
 		{
-			verts.push_back(tri.v[0].x);
-			verts.push_back(tri.v[0].y);
-
-			verts.push_back(tri.v[1].x);
-			verts.push_back(tri.v[1].y);
-
-			verts.push_back(tri.v[2].x);
-			verts.push_back(tri.v[2].y);
+			verts.push_back(-cos(corner.angle) * range);
+			verts.push_back(sin(corner.angle) * range);
 		}
-		fprintf(stderr, "}\n");
+
+		verts.push_back(corner.x);
+		verts.push_back(corner.y);
+
+		if(corner.overtake == vertex::overtake_style::POST)
+		{
+			verts.push_back(-cos(corner.angle) * range);
+			verts.push_back(sin(corner.angle) * range);
+		}
 	}
+
+	verts.push_back(verts.at(2));
+	verts.push_back(verts.at(3));
 
 	return verts;
 }
