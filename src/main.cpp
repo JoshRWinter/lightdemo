@@ -9,7 +9,7 @@ int main()
 	std::vector<ent::entity> entity_list;
 
 	float x = 0.0f, y = 0.0f;
-	const win::area area(-8.0f, 8.0f, 4.5f, -4.5f);
+	const win::area area(-8.0f, 8.0f, -4.5f, 4.5f);
 	const float width = display.width();
 	const float height = display.height();
 
@@ -26,7 +26,6 @@ int main()
 					entity_list.push_back(ent::entity(x, y));
 				break;
 		}
-
 	});
 
 	display.event_mouse([&x, &y, &width, &height, &area](const float xp, const float yp)
@@ -44,6 +43,8 @@ int main()
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		font_renderer.draw(font1, "lightdemo", 0.0f, 4.0f, win::color(1.0f, 1.0f, 0.0f, 0.3f), win::font_renderer::CENTERED);
+
 		ent::entity::render(renderer, entity_list);
 		renderer.quad_pass.send();
 
@@ -52,7 +53,7 @@ int main()
 		renderer.shadow_pass.send();
 
 		int index = 0;
-		for(int i = 2; i < copy.size() - 2; i += 2)
+		for(int i = 2; i < (int)copy.size() - 2; i += 2)
 		{
 			char buffer[100];
 			press::bwrite(buffer, sizeof(buffer), "{}", index);
