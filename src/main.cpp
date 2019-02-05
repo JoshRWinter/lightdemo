@@ -36,14 +36,18 @@ int main()
 
 	win::roll roll("assets");
 	win::font_renderer font_renderer = display.make_font_renderer(display.width(), display.height(), area.left, area.right, area.bottom, area.top);
-	win::font font1 = font_renderer.make_font(roll["arial.ttf"], 0.3f);
+	win::font font1 = font_renderer.make_font(roll["arial.ttf"], 0.35f);
 	core::renderer renderer(display, roll, area);
 
 	while(display.process() && !quit)
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		font_renderer.draw(font1, "lightdemo", 0.0f, 4.0f, win::color(1.0f, 1.0f, 0.0f, 0.3f), win::font_renderer::CENTERED);
+		float angle = atan2f(y, x);
+		while(angle < 0.0f)
+			angle += M_PI * 2.0f;
+		const std::string anglestring = press::swrite("angle: {}", angle);
+		font_renderer.draw(font1, anglestring.c_str(), 0.0f, 4.0f, win::color(1.0f, 1.0f, 0.0f, 0.3f), win::font_renderer::CENTERED);
 
 		ent::entity::render(renderer, entity_list);
 		renderer.quad_pass.send();
@@ -53,7 +57,7 @@ int main()
 		renderer.shadow_pass.send();
 
 		int index = 0;
-		for(int i = 2; i < (int)copy.size() - 2; i += 2)
+		for(int i = 0; i < (int)copy.size(); i += 2)
 		{
 			char buffer[100];
 			press::bwrite(buffer, sizeof(buffer), "{}", index);
