@@ -113,25 +113,9 @@ template <typename Solid, template <typename> typename List> std::vector<float> 
 		segments.push_back(segment(point(solid.x + solid.w, solid.y), point(solid.x + solid.w, solid.y + solid.h)));
 
 		// bottom
-		angle = atan2f(solid.y - lighty, solid.x - lightx);
-		angles.push_back(angle - offset);
-		angles.push_back(angle + offset);
-
-		angle = atan2f(solid.y - lighty, (solid.x + solid.w) - lightx);
-		angles.push_back(angle - offset);
-		angles.push_back(angle + offset);
-
 		segments.push_back(segment(point(solid.x, solid.y), point(solid.x + solid.w, solid.y)));
 
 		// top
-		angle = atan2f((solid.y + solid.h) - lighty, solid.x - lightx);
-		angles.push_back(angle - offset);
-		angles.push_back(angle + offset);
-
-		angle = atan2f((solid.y + solid.h) - lighty, (solid.x + solid.w) - lightx);
-		angles.push_back(angle - offset);
-		angles.push_back(angle + offset);
-
 		segments.push_back(segment(point(solid.x, solid.y + solid.h), point(solid.x + solid.w, solid.y + solid.h)));
 	}
 
