@@ -56,6 +56,7 @@ int main()
 		const std::vector<float> copy = renderer.shadow_pass.lights.at(0);
 		renderer.shadow_pass.send();
 
+/*
 		int index = 0;
 		for(int i = 0; i < (int)copy.size(); i += 2)
 		{
