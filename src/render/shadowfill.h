@@ -32,6 +32,8 @@ struct intersection
 intersection get_intersection(float lightx, float lighty, float dx, float dy, const point &sa, const point &sb, bool &collision)
 {
 	intersection intersect;
+	intersect.p.x = intersect.p.y = 0.0f;
+	intersect.distance = 0.0f;
 	/*
 	{
 		intersect.p.x = lightx + dx * 5.0f;

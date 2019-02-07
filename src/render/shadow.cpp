@@ -21,7 +21,7 @@ core::shadow::shadow(const core::renderer &parent, win::roll &roll)
 void core::shadow::add(const std::vector<ent::entity> &solids, float x, float y, float range)
 {
 
-	lights.push_back(shadowfill(solids, x, y, range));
+	lights.push_back(shadowfill<ent::entity, std::vector>(solids, x, y, range));
 }
 
 void core::shadow::send()

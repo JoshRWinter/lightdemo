@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "lightdemo.h"
 
 int main()
@@ -28,7 +30,7 @@ int main()
 		}
 	});
 
-	display.event_mouse([&x, &y, &width, &height, &area](const float xp, const float yp)
+	display.event_mouse([&x, &y, &width, &height, &area](const int xp, const int yp)
 	{
 		x = ((xp / width) * (area.right * 2.0f)) - area.right;
 		y = ((yp / height) * (area.bottom * 2.0f)) - area.bottom;
