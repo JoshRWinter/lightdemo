@@ -32,6 +32,11 @@ void core::shadow::send()
 
 	for(const auto &verts : lights)
 	{
+		const int centerx = (verts.at(0) / (renderer.world.right * 2.0f)) * 1280;
+		const int centery = (verts.at(1) / (renderer.world.top * 2.0f)) * 720;
+		glUniform2i(glGetUniformLocation(program, "origin"), centerx + 640, centery + 360);
+		glUniform1i(glGetUniformLocation(program, "range"), (3.0f / (renderer.world.right * 2.0f)) * 1280);
+
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * verts.size(), verts.data(), GL_DYNAMIC_DRAW);
 
 		glDrawArrays(GL_TRIANGLE_FAN, 0, verts.size() / 2);
